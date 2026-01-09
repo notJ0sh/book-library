@@ -1,5 +1,6 @@
 import sqlite3
-from flask import Flask, render_template, request, redirect, url_for, g
+import os
+from flask import Flask, render_template, request, redirect, url_for, g, jsonify
 from datetime import datetime
 
 app = Flask(__name__)
@@ -101,6 +102,14 @@ def delete(id):
     db.execute('DELETE FROM books WHERE id = ?', (id,))
     db.commit()
     return redirect(url_for('index'))
+
+@app.route('/api/db-modified')
+def db_modified():
+    """Return the last modification time of the database"""
+    if os.path.exists(DATABASE):
+        modified_time = os.path.getmtime(DATABASE)
+        return jsonify({'modified': modified_time})
+    return jsonify({'modified': 0})
 
 if __name__ == '__main__':
     import os

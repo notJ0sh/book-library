@@ -18,5 +18,31 @@
     <main class="container">
         {% block content %}{% endblock %}
     </main>
+
+    <script>
+        let lastModified = null;
+
+        async function checkForChanges() {
+            try {
+                const response = await fetch('/api/db-modified');
+                const data = await response.json();
+                
+                if (lastModified === null) {
+                    lastModified = data.modified;
+                } else if (data.modified !== lastModified) {
+                    lastModified = data.modified;
+                    location.reload();
+                }
+            } catch (error) {
+                console.error('Error checking for changes:', error);
+            }
+        }
+
+        // Check for changes every 2 seconds
+        setInterval(checkForChanges, 2000);
+        
+        // Initial check
+        checkForChanges();
+    </script>
 </body>
 </html>
