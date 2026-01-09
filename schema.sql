@@ -1,0 +1,11 @@
+DROP TABLE IF EXISTS books;
+
+CREATE TABLE books (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    title TEXT NOT NULL,
+    author TEXT NOT NULL,
+    status TEXT NOT NULL,
+    rating INTEGER,
+    notes TEXT,
+    date_added TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);

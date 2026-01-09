@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="header-section">
+    <h2>My Books</h2>
+    
+    <div class="controls">
+        <form method="GET" class="search-form">
+            <input type="text" name="search" placeholder="Search books..." value="{{ request.args.get('search', '') }}">
+            <button type="submit">Search</button>
+        </form>
+        
+        <div class="filters">
+            <a href="{{ url_for('index') }}" class="filter-btn">All</a>
+            <a href="{{ url_for('index', status='reading') }}" class="filter-btn">Reading</a>
+            <a href="{{ url_for('index', status='read') }}" class="filter-btn">Read</a>
+            <a href="{{ url_for('index', status='want-to-read') }}" class="filter-btn">Want to Read</a>
+        </div>
+    </div>
+</div>
+
+{% if books %}
+<div class="books-grid">
+    {% for book in books %}
+    <div class="book-card">
+        <h3>{{ book['title'] }}</h3>
+        <p class="author">by {{ book['author'] }}</p>
+        <span class="status status-{{ book['status'] }}">{{ book['status'].replace('-', ' ').title() }}</span>
+        
+        {% if book['rating'] %}
+        <div class="rating">
+            Rating: {{ book['rating'] }}/5 ⭐
+        </div>
+        {% endif %}
+        
+        {% if book['notes'] %}
+        <p class="notes">{{ book['notes'] }}</p>
+        {% endif %}
+        
+        <div class="actions">
+            <a href="{{ url_for('edit', id=book['id']) }}" class="btn btn-edit">Edit</a>
+            <a href="{{ url_for('delete', id=book['id']) }}" class="btn btn-delete" onclick="return confirm('Are you sure?')">Delete</a>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<p class="empty-state">No books found. <a href="{{ url_for('add') }}">Add your first book!</a></p>
+{% endif %}
+{% endblock %}
