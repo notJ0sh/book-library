@@ -96,5 +96,7 @@ def delete(id):
     return redirect(url_for('index'))
 
 if __name__ == '__main__':
-    app.run(debug=True)
-    init_db()
+    import os
+    if not os.path.exists(DATABASE):
+        init_db()
+    app.run(debug=False, host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))
