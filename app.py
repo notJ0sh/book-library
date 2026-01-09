@@ -97,6 +97,15 @@ def delete(id):
 
 if __name__ == '__main__':
     import os
+    print(f"Current working directory: {os.getcwd()}")
+    print(f"DATABASE path: {DATABASE}")
+    print(f"Database exists: {os.path.exists(DATABASE)}")
+    
     if not os.path.exists(DATABASE):
+        print("Creating database...")
         init_db()
+        print(f"Database created: {os.path.exists(DATABASE)}")
+    else:
+        print("Database already exists")
+    
     app.run(debug=False, host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))
