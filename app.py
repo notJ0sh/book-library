@@ -13,18 +13,25 @@ def get_db():
         db.row_factory = sqlite3.Row
     return db
 
-@app.teardown_appcontext
-def close_connection(exception):
-    db = getattr(g, '_database', None)
-    if db is not None:
-        db.close()
-
 def init_db():
     with app.app_context():
         db = get_db()
         with app.open_resource('schema.sql', mode='r') as f:
             db.cursor().executescript(f.read())
         db.commit()
+
+# Initialize database on app startup
+@app.before_request
+def ensure_db():
+    import os
+    if not os.path.exists(DATABASE):
+        init_db()
+
+@app.teardown_appcontext
+def close_connection(exception):
+    db = getattr(g, '_database', None)
+    if db is not None:
+        db.close()
 
 # Routes
 @app.route('/')
@@ -34,7 +41,7 @@ def index():
     search_query = request.args.get('search')
 
     if filter_status:
-        db.execute(
+        books = db.execute(
             'SELECT * FROM books WHERE status = ? ORDER BY date_added DESC',
             (filter_status,)
         ).fetchall()
