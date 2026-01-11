@@ -7,12 +7,15 @@ app = Flask(__name__)
 DATABASE = 'books.db'
 
 # Database helper functions
+
+
 def get_db():
     db = getattr(g, '_database', None)
     if db is None:
         db = g._database = sqlite3.connect(DATABASE)
         db.row_factory = sqlite3.Row
     return db
+
 
 def init_db():
     with app.app_context():
@@ -22,11 +25,14 @@ def init_db():
         db.commit()
 
 # Initialize database on app startup
+
+
 @app.before_request
 def ensure_db():
     import os
     if not os.path.exists(DATABASE):
         init_db()
+
 
 @app.teardown_appcontext
 def close_connection(exception):
@@ -35,6 +41,8 @@ def close_connection(exception):
         db.close()
 
 # Routes
+
+
 @app.route('/')
 def index():
     db = get_db()
@@ -52,9 +60,11 @@ def index():
             (f'%{search_query}%', f'%{search_query}%')
         ).fetchall()
     else:
-        books = db.execute('SELECT * FROM books ORDER BY date_added DESC').fetchall()
-    
+        books = db.execute(
+            'SELECT * FROM books ORDER BY date_added DESC').fetchall()
+
     return render_template('index.html', books=books)
+
 
 @app.route('/add', methods=['GET', 'POST'])
 def add():
@@ -72,8 +82,9 @@ def add():
         )
         db.commit()
         return redirect(url_for('index'))
-    
+
     return render_template('add.html')
+
 
 @app.route('/edit/<int:id>', methods=['GET', 'POST'])
 def edit(id):
@@ -92,9 +103,10 @@ def edit(id):
         )
         db.commit()
         return redirect(url_for('index'))
-    
+
     book = db.execute('SELECT * FROM books WHERE id = ?', (id,)).fetchone()
     return render_template('edit.html', book=book)
+
 
 @app.route('/delete/<int:id>')
 def delete(id):
@@ -102,6 +114,7 @@ def delete(id):
     db.execute('DELETE FROM books WHERE id = ?', (id,))
     db.commit()
     return redirect(url_for('index'))
+
 
 @app.route('/api/db-modified')
 def db_modified():
@@ -111,17 +124,19 @@ def db_modified():
         return jsonify({'modified': modified_time})
     return jsonify({'modified': 0})
 
+
 if __name__ == '__main__':
     import os
     print(f"Current working directory: {os.getcwd()}")
     print(f"DATABASE path: {DATABASE}")
     print(f"Database exists: {os.path.exists(DATABASE)}")
-    
+
     if not os.path.exists(DATABASE):
         print("Creating database...")
         init_db()
         print(f"Database created: {os.path.exists(DATABASE)}")
     else:
         print("Database already exists")
-    
-    app.run(debug=False, host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))
+
+    app.run(debug=False, host='0.0.0.0',
+            port=int(os.environ.get('PORT', 5000)))
